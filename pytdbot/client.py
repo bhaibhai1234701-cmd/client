@@ -996,7 +996,7 @@ class Client(Decorators, Methods):
             api_id=self.__api_id,
             api_hash=self.__api_hash,
             system_language_code=self.system_language_code,
-            device_model="Desktop",
+            device_model="PC 64-bit",
             system_version="Windows 11",
             application_version="5.12.3",
             use_file_database=self.use_file_database,
