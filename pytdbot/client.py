@@ -997,7 +997,7 @@ class Client(Decorators, Methods):
             api_hash=self.__api_hash,
             system_language_code=self.system_language_code,
             device_model="Desktop",
-            system_version="Windows",
+            system_version="Windows 11",
             application_version="5.12.3",
             use_file_database=self.use_file_database,
             use_chat_info_database=self.use_chat_info_database,
