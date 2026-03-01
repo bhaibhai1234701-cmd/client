@@ -1130,7 +1130,7 @@ class TDLibFunctions:
     async def getRepliedMessage(
         self, chat_id: int = 0, message_id: int = 0
     ) -> Union["pytdbot.types.Error", "pytdbot.types.Message"]:
-        r"""Returns information about a non\-bundled message that is replied by a given message\. Also, returns the pinned message for messagePinMessage, the game message for messageGameScore, the invoice message for messagePaymentSuccessful, the message with a previously set same background for messageChatSetBackground, the giveaway message for messageGiveawayCompleted, the checklist message for messageChecklistTasksDone, messageChecklistTasksAdded, the message with suggested post information for messageSuggestedPostApprovalFailed, messageSuggestedPostApproved, messageSuggestedPostDeclined, messageSuggestedPostPaid, messageSuggestedPostRefunded, the message with the regular gift that was upgraded for messageUpgradedGift with origin of the type upgradedGiftOriginUpgrade, the message with gift purchase offer for messageUpgradedGiftPurchaseOfferRejected, and the topic creation message for topic messages without non\-bundled replied message\. Returns a 404 error if the message doesn't exist
+        r"""Returns information about a non\-bundled message that is replied by a given message\. Also, returns the pinned message for messagePinMessage, the game message for messageGameScore, the invoice message for messagePaymentSuccessful, the message with a previously set same background for messageChatSetBackground, the giveaway message for messageGiveawayCompleted, the checklist message for messageChecklistTasksDone, messageChecklistTasksAdded, the message with suggested post information for messageSuggestedPostApprovalFailed, messageSuggestedPostApproved, messageSuggestedPostDeclined, messageSuggestedPostPaid, messageSuggestedPostRefunded, the message with the regular gift that was upgraded for messageUpgradedGift with origin of the type upgradedGiftOriginUpgrade, the message with gift purchase offer for messageUpgradedGiftPurchaseOfferRejected, the message with the request to disable content protection for messageChatHasProtectedContentToggled, and the topic creation message for topic messages without non\-bundled replied message\. Returns a 404 error if the message doesn't exist
 
         Parameters:
             chat_id (:class:`int`):
@@ -6848,7 +6848,7 @@ class TDLibFunctions:
         option_id: int = 0,
         offset: int = 0,
         limit: int = 0,
-    ) -> Union["pytdbot.types.Error", "pytdbot.types.MessageSenders"]:
+    ) -> Union["pytdbot.types.Error", "pytdbot.types.PollVoters"]:
         r"""Returns message senders voted for the specified option in a non\-anonymous polls\. For optimal performance, the number of returned users is chosen by TDLib
 
         Parameters:
@@ -6868,7 +6868,7 @@ class TDLibFunctions:
                 The maximum number of voters to be returned; must be positive and can't be greater than 50\. For optimal performance, the number of returned voters is chosen by TDLib and can be smaller than the specified limit, even if the end of the voter list has not been reached
 
         Returns:
-            :class:`~pytdbot.types.MessageSenders`
+            :class:`~pytdbot.types.PollVoters`
         """
 
         return await self.invoke(
@@ -8161,10 +8161,7 @@ class TDLibFunctions:
         return await self.invoke({"@type": "getExternalLinkInfo", "link": link})
 
     async def getExternalLink(
-        self,
-        link: str = "",
-        allow_write_access: bool = False,
-        allow_phone_number_access: bool = False,
+        self, link: str = "", allow_write_access: bool = False
     ) -> Union["pytdbot.types.Error", "pytdbot.types.HttpUrl"]:
         r"""Returns an HTTP URL which can be used to automatically authorize the current user on a website after clicking an HTTP link\. Use the method getExternalLinkInfo to find whether a prior user confirmation is needed\. May return an empty link if just a toast about successful login has to be shown
 
@@ -8175,9 +8172,6 @@ class TDLibFunctions:
             allow_write_access (:class:`bool`):
                 Pass true if the current user allowed the bot that was returned in getExternalLinkInfo, to send them messages
 
-            allow_phone_number_access (:class:`bool`):
-                Pass true if the current user allowed the bot that was returned in getExternalLinkInfo, to access their phone number
-
         Returns:
             :class:`~pytdbot.types.HttpUrl`
         """
@@ -8187,9 +8181,103 @@ class TDLibFunctions:
                 "@type": "getExternalLink",
                 "link": link,
                 "allow_write_access": allow_write_access,
+            }
+        )
+
+    async def getOauthLinkInfo(
+        self, url: str = "", in_app_origin: str = ""
+    ) -> Union["pytdbot.types.Error", "pytdbot.types.OauthLinkInfo"]:
+        r"""Returns information about an OAuth deep link\. Use checkOauthRequestMatchCode, acceptOauthRequest or declineOauthRequest to process the link
+
+        Parameters:
+            url (:class:`str`):
+                URL of the link
+
+            in_app_origin (:class:`str`):
+                Origin of the OAuth request if the request was received from the in\-app browser; pass an empty string otherwise
+
+        Returns:
+            :class:`~pytdbot.types.OauthLinkInfo`
+        """
+
+        return await self.invoke(
+            {"@type": "getOauthLinkInfo", "url": url, "in_app_origin": in_app_origin}
+        )
+
+    async def checkOauthRequestMatchCode(
+        self, url: str = "", match_code: str = ""
+    ) -> Union["pytdbot.types.Error", "pytdbot.types.Ok"]:
+        r"""Checks a match\-code for an OAuth authorization request\. If fails, then the authorization request has failed\. Otherwise, authorization confirmation dialog must be shown and the link must be processed using acceptOauthRequest or declineOauthRequest
+
+        Parameters:
+            url (:class:`str`):
+                URL of the OAuth deep link
+
+            match_code (:class:`str`):
+                The matching code chosen by the user
+
+        Returns:
+            :class:`~pytdbot.types.Ok`
+        """
+
+        return await self.invoke(
+            {
+                "@type": "checkOauthRequestMatchCode",
+                "url": url,
+                "match_code": match_code,
+            }
+        )
+
+    async def acceptOauthRequest(
+        self,
+        url: str = "",
+        match_code: str = "",
+        allow_write_access: bool = False,
+        allow_phone_number_access: bool = False,
+    ) -> Union["pytdbot.types.Error", "pytdbot.types.HttpUrl"]:
+        r"""Accepts an OAuth authorization request\. Returns an HTTP URL to open after successful authorization\. May return an empty link if just a toast about successful login has to be shown
+
+        Parameters:
+            url (:class:`str`):
+                URL of the OAuth deep link
+
+            match_code (:class:`str`):
+                The matching code chosen by the user
+
+            allow_write_access (:class:`bool`):
+                Pass true if the current user allowed the bot that was returned in getOauthLinkInfo, to send them messages
+
+            allow_phone_number_access (:class:`bool`):
+                Pass true if the current user allowed the bot that was returned in getOauthLinkInfo, to access their phone number
+
+        Returns:
+            :class:`~pytdbot.types.HttpUrl`
+        """
+
+        return await self.invoke(
+            {
+                "@type": "acceptOauthRequest",
+                "url": url,
+                "match_code": match_code,
+                "allow_write_access": allow_write_access,
                 "allow_phone_number_access": allow_phone_number_access,
             }
         )
+
+    async def declineOauthRequest(
+        self, url: str = ""
+    ) -> Union["pytdbot.types.Error", "pytdbot.types.Ok"]:
+        r"""Declines an OAuth authorization request
+
+        Parameters:
+            url (:class:`str`):
+                URL of the OAuth deep link
+
+        Returns:
+            :class:`~pytdbot.types.Ok`
+        """
+
+        return await self.invoke({"@type": "declineOauthRequest", "url": url})
 
     async def readAllChatMentions(
         self, chat_id: int = 0
@@ -9218,7 +9306,7 @@ class TDLibFunctions:
     async def toggleChatHasProtectedContent(
         self, chat_id: int = 0, has_protected_content: bool = False
     ) -> Union["pytdbot.types.Error", "pytdbot.types.Ok"]:
-        r"""Changes the ability of users to save, forward, or copy chat content\. Supported only for basic groups, supergroups and channels\. Requires owner privileges
+        r"""Changes the ability of users to save, forward, or copy chat content\. Requires owner privileges in basic groups, supergroups and channels\. Requires Telegram Premium to enable protected content in private chats\. Not available in Saved Messages and private chats with bots or support accounts
 
         Parameters:
             chat_id (:class:`int`):
@@ -9236,6 +9324,34 @@ class TDLibFunctions:
                 "@type": "toggleChatHasProtectedContent",
                 "chat_id": chat_id,
                 "has_protected_content": has_protected_content,
+            }
+        )
+
+    async def processChatHasProtectedContentDisableRequest(
+        self, chat_id: int = 0, request_message_id: int = 0, approve: bool = False
+    ) -> Union["pytdbot.types.Error", "pytdbot.types.Ok"]:
+        r"""Processes request to disable has\_protected\_content in a chat
+
+        Parameters:
+            chat_id (:class:`int`):
+                Chat identifier
+
+            request_message_id (:class:`int`):
+                Identifier of the message with the request\. The message must be incoming and has content of the type messageChatHasProtectedContentDisableRequested
+
+            approve (:class:`bool`):
+                Pass true to approve the request; pass false to reject the request
+
+        Returns:
+            :class:`~pytdbot.types.Ok`
+        """
+
+        return await self.invoke(
+            {
+                "@type": "processChatHasProtectedContentDisableRequest",
+                "chat_id": chat_id,
+                "request_message_id": request_message_id,
+                "approve": approve,
             }
         )
 
@@ -9688,6 +9804,34 @@ class TDLibFunctions:
             }
         )
 
+    async def setChatMemberTag(
+        self, chat_id: int = 0, user_id: int = 0, tag: str = ""
+    ) -> Union["pytdbot.types.Error", "pytdbot.types.Ok"]:
+        r"""Changes the tag or custom title of a chat member; requires can\_manage\_tags administrator right to change tag of other users; for basic groups and supergroups only
+
+        Parameters:
+            chat_id (:class:`int`):
+                Chat identifier
+
+            user_id (:class:`int`):
+                Identifier of the user, which tag is changed\. Chats can't have member tags
+
+            tag (:class:`str`):
+                The new tag of the member in the chat; 0\-16 characters without emoji
+
+        Returns:
+            :class:`~pytdbot.types.Ok`
+        """
+
+        return await self.invoke(
+            {
+                "@type": "setChatMemberTag",
+                "chat_id": chat_id,
+                "user_id": user_id,
+                "tag": tag,
+            }
+        )
+
     async def banChatMember(
         self,
         chat_id: int = 0,
@@ -9742,7 +9886,7 @@ class TDLibFunctions:
     async def transferChatOwnership(
         self, chat_id: int = 0, user_id: int = 0, password: str = ""
     ) -> Union["pytdbot.types.Error", "pytdbot.types.Ok"]:
-        r"""Changes the owner of a chat; requires owner privileges in the chat\. Use the method canTransferOwnership to check whether the ownership can be transferred from the current session\. Available only for supergroups and channel chats
+        r"""Changes the owner of a chat; for basic groups, supergroups and channel chats only; requires owner privileges in the chat\. Use the method canTransferOwnership to check whether the ownership can be transferred from the current session
 
         Parameters:
             chat_id (:class:`int`):
@@ -9770,7 +9914,7 @@ class TDLibFunctions:
     async def getChatOwnerAfterLeaving(
         self, chat_id: int = 0
     ) -> Union["pytdbot.types.Error", "pytdbot.types.User"]:
-        r"""Returns the user who will become the owner of the chat after 7 days if the current user does not return to the chat during that period; requires owner privileges in the chat\. Available only for supergroups and channel chats
+        r"""Returns the user who will become the owner of the chat after 7 days if the current user does not return to the supergroup or channel during that period or immediately for basic groups; requires owner privileges in the chat\. Available only for supergroups and channel chats
 
         Parameters:
             chat_id (:class:`int`):
@@ -12726,7 +12870,7 @@ class TDLibFunctions:
 
     async def sendCallRating(
         self,
-        call_id: int = 0,
+        call_id: "pytdbot.types.InputCall" = None,
         rating: int = 0,
         comment: str = "",
         problems: List["pytdbot.types.CallProblem"] = None,
@@ -12734,7 +12878,7 @@ class TDLibFunctions:
         r"""Sends a call rating
 
         Parameters:
-            call_id (:class:`int`):
+            call_id (:class:`~pytdbot.types.InputCall`):
                 Call identifier
 
             rating (:class:`int`):
@@ -12761,12 +12905,12 @@ class TDLibFunctions:
         )
 
     async def sendCallDebugInformation(
-        self, call_id: int = 0, debug_information: str = ""
+        self, call_id: "pytdbot.types.InputCall" = None, debug_information: str = ""
     ) -> Union["pytdbot.types.Error", "pytdbot.types.Ok"]:
         r"""Sends debug information for a call to Telegram servers
 
         Parameters:
-            call_id (:class:`int`):
+            call_id (:class:`~pytdbot.types.InputCall`):
                 Call identifier
 
             debug_information (:class:`str`):
@@ -12785,12 +12929,14 @@ class TDLibFunctions:
         )
 
     async def sendCallLog(
-        self, call_id: int = 0, log_file: "pytdbot.types.InputFile" = None
+        self,
+        call_id: "pytdbot.types.InputCall" = None,
+        log_file: "pytdbot.types.InputFile" = None,
     ) -> Union["pytdbot.types.Error", "pytdbot.types.Ok"]:
         r"""Sends log file for a call to Telegram servers
 
         Parameters:
-            call_id (:class:`int`):
+            call_id (:class:`~pytdbot.types.InputCall`):
                 Call identifier
 
             log_file (:class:`~pytdbot.types.InputFile`):
@@ -12854,7 +13000,7 @@ class TDLibFunctions:
         start_date: int = 0,
         is_rtmp_stream: bool = False,
     ) -> Union["pytdbot.types.Error", "pytdbot.types.GroupCallId"]:
-        r"""Creates a video chat \(a group call bound to a chat\)\. Available only for basic groups, supergroups and channels; requires can\_manage\_video\_chats administrator right
+        r"""Creates a video chat \(a group call bound to a chat\); for basic groups, supergroups and channels only; requires can\_manage\_video\_chats administrator right
 
         Parameters:
             chat_id (:class:`int`):
@@ -18282,7 +18428,7 @@ class TDLibFunctions:
 
         Parameters:
             received_gift_ids (List[:class:`str`]):
-                Identifier of the gifts to use for crafting
+                Identifier of the gifts to use for crafting\. In the case of a successful craft, the resulting gift will have the number of the first gift\. Consequently, the first gift must not have been withdrawn to the TON blockchain as an NFT and must have an empty gift\_address
 
         Returns:
             :class:`~pytdbot.types.CraftGiftResult`

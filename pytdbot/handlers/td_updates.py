@@ -2141,7 +2141,7 @@ class Updates:
         position: int = None,
         timeout: float = None,
     ) -> Callable:
-        r"""The default chat reply markup was changed\. Can occur because new messages with reply markup were received or because an old reply markup was hidden by the user
+        r"""The chat reply markup was changed
 
         Parameters:
             filters (:class:`pytdbot.filters.Filter`, *optional*):
@@ -4663,6 +4663,65 @@ class Updates:
                 func._handler = Handler(
                     func=func,
                     update_type="updateServiceNotification",
+                    filter=filters,
+                    position=position,
+                    inner_object=False,
+                    timeout=timeout,
+                )
+            return func
+
+        return decorator
+
+    def on_updateNewOauthRequest(
+        self: "pytdbot.Client" = None,
+        filters: "pytdbot.filters.Filter" = None,
+        position: int = None,
+        timeout: float = None,
+    ) -> Callable:
+        r"""An OAuth authorization request was received
+
+        Parameters:
+            filters (:class:`pytdbot.filters.Filter`, *optional*):
+                An update filter
+
+            position (``int``, *optional*):
+                The function position in handlers list. Default is ``None`` (append)
+
+            timeout (``float``, *optional*):
+                Max execution time for the handler before it timeout. Default is ``None``
+
+        Raises:
+            :py:class:`TypeError`
+        """
+
+        def decorator(func: Callable) -> Callable:
+            if hasattr(func, "_handler"):
+                return func
+            elif isinstance(self, pytdbot.Client):
+                if iscoroutinefunction(func):
+                    self.add_handler(
+                        update_type="updateNewOauthRequest",
+                        func=func,
+                        filters=filters,
+                        position=position,
+                        inner_object=False,
+                        timeout=timeout,
+                    )
+                else:
+                    raise TypeError("Handler must be async")
+            elif isinstance(self, pytdbot.filters.Filter):
+                func._handler = Handler(
+                    func=func,
+                    update_type="updateNewOauthRequest",
+                    filter=self,
+                    position=position,
+                    inner_object=False,
+                    timeout=timeout,
+                )
+            else:
+                func._handler = Handler(
+                    func=func,
+                    update_type="updateNewOauthRequest",
                     filter=filters,
                     position=position,
                     inner_object=False,

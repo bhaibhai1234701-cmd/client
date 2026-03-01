@@ -1,10 +1,10 @@
 from typing import Union, Literal, List
 from base64 import b64decode
 from .bound_methods import (
+    CallbackQueryBoundMethods,
+    MessageBoundMethods,
     MessageSenderBoundMethods,
     FileBoundMethods,
-    MessageBoundMethods,
-    CallbackQueryBoundMethods,
 )
 import pytdbot
 
@@ -478,7 +478,7 @@ class ReplyMarkup:
 
 
 class LoginUrlInfo:
-    r"""Contains information about an inline button of type inlineKeyboardButtonTypeLoginUrl"""
+    r"""Contains information about an inline button of type inlineKeyboardButtonTypeLoginUrl or an external link"""
 
     pass
 
@@ -611,6 +611,18 @@ class InputPassportElementErrorSource:
 
 class MessageContent:
     r"""Contains the content of a message"""
+
+    pass
+
+
+class DateTimePartPrecision:
+    r"""Describes precision with which to show a date or a time"""
+
+    pass
+
+
+class DateTimeFormattingType:
+    r"""Describes date and time formatting"""
 
     pass
 
@@ -755,6 +767,12 @@ class CallDiscardReason:
 
 class CallServerType:
     r"""Describes the type of call server"""
+
+    pass
+
+
+class InputCall:
+    r"""Describes a call"""
 
     pass
 
@@ -2059,6 +2077,7 @@ class TextEntity(TlObject):
             TextEntityTypeMentionName,
             TextEntityTypeCustomEmoji,
             TextEntityTypeMediaTimestamp,
+            TextEntityTypeDateTime,
             None,
         ] = type
         r"""Type of the entity"""
@@ -9391,6 +9410,9 @@ class ChatPermissions(TlObject):
         can_add_link_previews (:class:`bool`):
             True, if the user may add a link preview to their messages
 
+        can_edit_tag (:class:`bool`):
+            True, if the user may change the tag of self
+
         can_change_info (:class:`bool`):
             True, if the user can change the chat title, photo, and other settings
 
@@ -9417,6 +9439,7 @@ class ChatPermissions(TlObject):
         can_send_polls: bool = False,
         can_send_other_messages: bool = False,
         can_add_link_previews: bool = False,
+        can_edit_tag: bool = False,
         can_change_info: bool = False,
         can_invite_users: bool = False,
         can_pin_messages: bool = False,
@@ -9442,6 +9465,8 @@ class ChatPermissions(TlObject):
         r"""True, if the user can send animations, games, stickers, and dice and use inline bots"""
         self.can_add_link_previews: bool = bool(can_add_link_previews)
         r"""True, if the user may add a link preview to their messages"""
+        self.can_edit_tag: bool = bool(can_edit_tag)
+        r"""True, if the user may change the tag of self"""
         self.can_change_info: bool = bool(can_change_info)
         r"""True, if the user can change the chat title, photo, and other settings"""
         self.can_invite_users: bool = bool(can_invite_users)
@@ -9475,6 +9500,7 @@ class ChatPermissions(TlObject):
             "can_send_polls": self.can_send_polls,
             "can_send_other_messages": self.can_send_other_messages,
             "can_add_link_previews": self.can_add_link_previews,
+            "can_edit_tag": self.can_edit_tag,
             "can_change_info": self.can_change_info,
             "can_invite_users": self.can_invite_users,
             "can_pin_messages": self.can_pin_messages,
@@ -9499,6 +9525,7 @@ class ChatPermissions(TlObject):
                 "can_send_other_messages", False
             )
             data_class.can_add_link_previews = data.get("can_add_link_previews", False)
+            data_class.can_edit_tag = data.get("can_edit_tag", False)
             data_class.can_change_info = data.get("can_change_info", False)
             data_class.can_invite_users = data.get("can_invite_users", False)
             data_class.can_pin_messages = data.get("can_pin_messages", False)
@@ -9556,6 +9583,9 @@ class ChatAdministratorRights(TlObject):
         can_manage_direct_messages (:class:`bool`):
             True, if the administrator can answer to channel direct messages; applicable to channels only
 
+        can_manage_tags (:class:`bool`):
+            True, if the administrator can change tags of other users; applicable to basic groups and supergroups only
+
         is_anonymous (:class:`bool`):
             True, if the administrator isn't shown in the chat member list and sends messages anonymously; applicable to supergroups only
 
@@ -9578,6 +9608,7 @@ class ChatAdministratorRights(TlObject):
         can_edit_stories: bool = False,
         can_delete_stories: bool = False,
         can_manage_direct_messages: bool = False,
+        can_manage_tags: bool = False,
         is_anonymous: bool = False,
     ) -> None:
         self.can_manage_chat: bool = bool(can_manage_chat)
@@ -9610,6 +9641,8 @@ class ChatAdministratorRights(TlObject):
         r"""True, if the administrator can delete stories posted by other users; applicable to supergroups and channels only"""
         self.can_manage_direct_messages: bool = bool(can_manage_direct_messages)
         r"""True, if the administrator can answer to channel direct messages; applicable to channels only"""
+        self.can_manage_tags: bool = bool(can_manage_tags)
+        r"""True, if the administrator can change tags of other users; applicable to basic groups and supergroups only"""
         self.is_anonymous: bool = bool(is_anonymous)
         r"""True, if the administrator isn't shown in the chat member list and sends messages anonymously; applicable to supergroups only"""
 
@@ -9642,6 +9675,7 @@ class ChatAdministratorRights(TlObject):
             "can_edit_stories": self.can_edit_stories,
             "can_delete_stories": self.can_delete_stories,
             "can_manage_direct_messages": self.can_manage_direct_messages,
+            "can_manage_tags": self.can_manage_tags,
             "is_anonymous": self.is_anonymous,
         }
 
@@ -9668,6 +9702,7 @@ class ChatAdministratorRights(TlObject):
             data_class.can_manage_direct_messages = data.get(
                 "can_manage_direct_messages", False
             )
+            data_class.can_manage_tags = data.get("can_manage_tags", False)
             data_class.is_anonymous = data.get("is_anonymous", False)
 
         return data_class
@@ -11268,6 +11303,7 @@ class PremiumPaymentOption(TlObject):
             InternalLinkTypeNewGroupChat,
             InternalLinkTypeNewPrivateChat,
             InternalLinkTypeNewStory,
+            InternalLinkTypeOauth,
             InternalLinkTypePassportDataRequest,
             InternalLinkTypePhoneNumberConfirmation,
             InternalLinkTypePremiumFeaturesPage,
@@ -20514,6 +20550,7 @@ class BotInfo(TlObject):
             InternalLinkTypeNewGroupChat,
             InternalLinkTypeNewPrivateChat,
             InternalLinkTypeNewStory,
+            InternalLinkTypeOauth,
             InternalLinkTypePassportDataRequest,
             InternalLinkTypePhoneNumberConfirmation,
             InternalLinkTypePremiumFeaturesPage,
@@ -20572,6 +20609,7 @@ class BotInfo(TlObject):
             InternalLinkTypeNewGroupChat,
             InternalLinkTypeNewPrivateChat,
             InternalLinkTypeNewStory,
+            InternalLinkTypeOauth,
             InternalLinkTypePassportDataRequest,
             InternalLinkTypePhoneNumberConfirmation,
             InternalLinkTypePremiumFeaturesPage,
@@ -20630,6 +20668,7 @@ class BotInfo(TlObject):
             InternalLinkTypeNewGroupChat,
             InternalLinkTypeNewPrivateChat,
             InternalLinkTypeNewStory,
+            InternalLinkTypeOauth,
             InternalLinkTypePassportDataRequest,
             InternalLinkTypePhoneNumberConfirmation,
             InternalLinkTypePremiumFeaturesPage,
@@ -20688,6 +20727,7 @@ class BotInfo(TlObject):
             InternalLinkTypeNewGroupChat,
             InternalLinkTypeNewPrivateChat,
             InternalLinkTypeNewStory,
+            InternalLinkTypeOauth,
             InternalLinkTypePassportDataRequest,
             InternalLinkTypePhoneNumberConfirmation,
             InternalLinkTypePremiumFeaturesPage,
@@ -21294,9 +21334,6 @@ class ChatMemberStatusCreator(TlObject, ChatMemberStatus):
     r"""The user is the owner of the chat and has all the administrator privileges
 
     Parameters:
-        custom_title (:class:`str`):
-            A custom title of the owner; 0\-16 characters without emoji; applicable to supergroups only
-
         is_anonymous (:class:`bool`):
             True, if the creator isn't shown in the chat member list and sends messages anonymously; applicable to supergroups only
 
@@ -21305,14 +21342,7 @@ class ChatMemberStatusCreator(TlObject, ChatMemberStatus):
 
     """
 
-    def __init__(
-        self,
-        custom_title: str = "",
-        is_anonymous: bool = False,
-        is_member: bool = False,
-    ) -> None:
-        self.custom_title: Union[str, None] = custom_title
-        r"""A custom title of the owner; 0\-16 characters without emoji; applicable to supergroups only"""
+    def __init__(self, is_anonymous: bool = False, is_member: bool = False) -> None:
         self.is_anonymous: bool = bool(is_anonymous)
         r"""True, if the creator isn't shown in the chat member list and sends messages anonymously; applicable to supergroups only"""
         self.is_member: bool = bool(is_member)
@@ -21332,7 +21362,6 @@ class ChatMemberStatusCreator(TlObject, ChatMemberStatus):
     def to_dict(self) -> dict:
         return {
             "@type": self.getType(),
-            "custom_title": self.custom_title,
             "is_anonymous": self.is_anonymous,
             "is_member": self.is_member,
         }
@@ -21341,7 +21370,6 @@ class ChatMemberStatusCreator(TlObject, ChatMemberStatus):
     def from_dict(cls, data: dict) -> Union["ChatMemberStatusCreator", None]:
         if data:
             data_class = cls()
-            data_class.custom_title = data.get("custom_title", "")
             data_class.is_anonymous = data.get("is_anonymous", False)
             data_class.is_member = data.get("is_member", False)
 
@@ -21352,9 +21380,6 @@ class ChatMemberStatusAdministrator(TlObject, ChatMemberStatus):
     r"""The user is a member of the chat and has some additional privileges\. In basic groups, administrators can edit and delete messages sent by others, add new members, ban unprivileged members, and manage video chats\. In supergroups and channels, there are more detailed options for administrator privileges
 
     Parameters:
-        custom_title (:class:`str`):
-            A custom title of the administrator; 0\-16 characters without emoji; applicable to supergroups only
-
         can_be_edited (:class:`bool`):
             True, if the current user can edit the administrator privileges for the called user
 
@@ -21364,13 +21389,8 @@ class ChatMemberStatusAdministrator(TlObject, ChatMemberStatus):
     """
 
     def __init__(
-        self,
-        custom_title: str = "",
-        can_be_edited: bool = False,
-        rights: ChatAdministratorRights = None,
+        self, can_be_edited: bool = False, rights: ChatAdministratorRights = None
     ) -> None:
-        self.custom_title: Union[str, None] = custom_title
-        r"""A custom title of the administrator; 0\-16 characters without emoji; applicable to supergroups only"""
         self.can_be_edited: bool = bool(can_be_edited)
         r"""True, if the current user can edit the administrator privileges for the called user"""
         self.rights: Union[ChatAdministratorRights, None] = rights
@@ -21390,7 +21410,6 @@ class ChatMemberStatusAdministrator(TlObject, ChatMemberStatus):
     def to_dict(self) -> dict:
         return {
             "@type": self.getType(),
-            "custom_title": self.custom_title,
             "can_be_edited": self.can_be_edited,
             "rights": self.rights,
         }
@@ -21399,7 +21418,6 @@ class ChatMemberStatusAdministrator(TlObject, ChatMemberStatus):
     def from_dict(cls, data: dict) -> Union["ChatMemberStatusAdministrator", None]:
         if data:
             data_class = cls()
-            data_class.custom_title = data.get("custom_title", "")
             data_class.can_be_edited = data.get("can_be_edited", False)
             data_class.rights = data.get("rights", None)
 
@@ -21571,6 +21589,9 @@ class ChatMember(TlObject):
         member_id (:class:`~pytdbot.types.MessageSender`):
             Identifier of the chat member\. Currently, other chats can be only Left or Banned\. Only supergroups and channels can have other chats as Left or Banned members and these chats must be supergroups or channels
 
+        tag (:class:`str`):
+            Tag of the chat member or its custom title if the member is an administrator of the chat; 0\-16 characters without emoji; applicable to basic groups and supergroups only
+
         inviter_user_id (:class:`int`):
             Identifier of a user who invited/promoted/banned this member in the chat; 0 if unknown
 
@@ -21585,12 +21606,15 @@ class ChatMember(TlObject):
     def __init__(
         self,
         member_id: MessageSender = None,
+        tag: str = "",
         inviter_user_id: int = 0,
         joined_chat_date: int = 0,
         status: ChatMemberStatus = None,
     ) -> None:
         self.member_id: Union[MessageSenderUser, MessageSenderChat, None] = member_id
         r"""Identifier of the chat member\. Currently, other chats can be only Left or Banned\. Only supergroups and channels can have other chats as Left or Banned members and these chats must be supergroups or channels"""
+        self.tag: Union[str, None] = tag
+        r"""Tag of the chat member or its custom title if the member is an administrator of the chat; 0\-16 characters without emoji; applicable to basic groups and supergroups only"""
         self.inviter_user_id: int = int(inviter_user_id)
         r"""Identifier of a user who invited/promoted/banned this member in the chat; 0 if unknown"""
         self.joined_chat_date: int = int(joined_chat_date)
@@ -21621,6 +21645,7 @@ class ChatMember(TlObject):
         return {
             "@type": self.getType(),
             "member_id": self.member_id,
+            "tag": self.tag,
             "inviter_user_id": self.inviter_user_id,
             "joined_chat_date": self.joined_chat_date,
             "status": self.status,
@@ -21631,6 +21656,7 @@ class ChatMember(TlObject):
         if data:
             data_class = cls()
             data_class.member_id = data.get("member_id", None)
+            data_class.tag = data.get("tag", "")
             data_class.inviter_user_id = int(data.get("inviter_user_id", 0))
             data_class.joined_chat_date = int(data.get("joined_chat_date", 0))
             data_class.status = data.get("status", None)
@@ -23216,7 +23242,7 @@ class Supergroup(TlObject):
             Point in time \(Unix timestamp\) when the current user joined, or the point in time when the supergroup or channel was created, in case the user is not a member
 
         status (:class:`~pytdbot.types.ChatMemberStatus`):
-            Status of the current user in the supergroup or channel; custom title will always be empty
+            Status of the current user in the supergroup or channel
 
         member_count (:class:`int`):
             Number of members in the supergroup or channel; 0 if unknown\. Currently, it is guaranteed to be known only if the supergroup or channel was received through getChatSimilarChats, getChatsToPostStories, getCreatedPublicChats, getGroupsInCommon, getInactiveSupergroupChats, getRecommendedChats, getSuitableDiscussionChats, getUserPrivacySettingRules, getVideoChatAvailableParticipants, searchPublicChats, or in chatFolderInviteLinkInfo\.missing\_chat\_ids, or in userFullInfo\.personal\_chat\_id, or for chats with messages or stories from publicForwards and foundStories
@@ -23326,7 +23352,7 @@ class Supergroup(TlObject):
             ChatMemberStatusBanned,
             None,
         ] = status
-        r"""Status of the current user in the supergroup or channel; custom title will always be empty"""
+        r"""Status of the current user in the supergroup or channel"""
         self.member_count: int = int(member_count)
         r"""Number of members in the supergroup or channel; 0 if unknown\. Currently, it is guaranteed to be known only if the supergroup or channel was received through getChatSimilarChats, getChatsToPostStories, getCreatedPublicChats, getGroupsInCommon, getInactiveSupergroupChats, getRecommendedChats, getSuitableDiscussionChats, getUserPrivacySettingRules, getVideoChatAvailableParticipants, searchPublicChats, or in chatFolderInviteLinkInfo\.missing\_chat\_ids, or in userFullInfo\.personal\_chat\_id, or for chats with messages or stories from publicForwards and foundStories"""
         self.boost_level: int = int(boost_level)
@@ -24185,7 +24211,7 @@ class MessageSenders(TlObject):
 
     Parameters:
         total_count (:class:`int`):
-            Approximate total number of messages senders found
+            Approximate total number of message senders found
 
         senders (List[:class:`~pytdbot.types.MessageSender`]):
             List of message senders
@@ -24196,7 +24222,7 @@ class MessageSenders(TlObject):
         self, total_count: int = 0, senders: List[MessageSender] = None
     ) -> None:
         self.total_count: int = int(total_count)
-        r"""Approximate total number of messages senders found"""
+        r"""Approximate total number of message senders found"""
         self.senders: List[MessageSender] = senders or []
         r"""List of message senders"""
 
@@ -24308,6 +24334,94 @@ class ChatMessageSenders(TlObject):
         if data:
             data_class = cls()
             data_class.senders = data.get("senders", None)
+
+        return data_class
+
+
+class PollVoter(TlObject):
+    r"""Represents a poll voter
+
+    Parameters:
+        voter_id (:class:`~pytdbot.types.MessageSender`):
+            The voter identifier
+
+        date (:class:`int`):
+            Point in time \(Unix timestamp\) when the vote was added
+
+    """
+
+    def __init__(self, voter_id: MessageSender = None, date: int = 0) -> None:
+        self.voter_id: Union[MessageSenderUser, MessageSenderChat, None] = voter_id
+        r"""The voter identifier"""
+        self.date: int = int(date)
+        r"""Point in time \(Unix timestamp\) when the vote was added"""
+
+    def __str__(self):
+        return str(pytdbot.utils.obj_to_json(self, indent=4))
+
+    @classmethod
+    def getType(self) -> Literal["pollVoter"]:
+        return "pollVoter"
+
+    @classmethod
+    def getClass(self) -> Literal["PollVoter"]:
+        return "PollVoter"
+
+    def to_dict(self) -> dict:
+        return {"@type": self.getType(), "voter_id": self.voter_id, "date": self.date}
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Union["PollVoter", None]:
+        if data:
+            data_class = cls()
+            data_class.voter_id = data.get("voter_id", None)
+            data_class.date = int(data.get("date", 0))
+
+        return data_class
+
+
+class PollVoters(TlObject):
+    r"""Represents a list of poll voters
+
+    Parameters:
+        total_count (:class:`int`):
+            Approximate total number of poll voters found
+
+        voters (List[:class:`~pytdbot.types.PollVoter`]):
+            List of poll voters
+
+    """
+
+    def __init__(self, total_count: int = 0, voters: List[PollVoter] = None) -> None:
+        self.total_count: int = int(total_count)
+        r"""Approximate total number of poll voters found"""
+        self.voters: List[PollVoter] = voters or []
+        r"""List of poll voters"""
+
+    def __str__(self):
+        return str(pytdbot.utils.obj_to_json(self, indent=4))
+
+    @classmethod
+    def getType(self) -> Literal["pollVoters"]:
+        return "pollVoters"
+
+    @classmethod
+    def getClass(self) -> Literal["PollVoters"]:
+        return "PollVoters"
+
+    def to_dict(self) -> dict:
+        return {
+            "@type": self.getType(),
+            "total_count": self.total_count,
+            "voters": self.voters,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Union["PollVoters", None]:
+        if data:
+            data_class = cls()
+            data_class.total_count = int(data.get("total_count", 0))
+            data_class.voters = data.get("voters", None)
 
         return data_class
 
@@ -26222,6 +26336,8 @@ class MessageReplyToMessage(TlObject, MessageReplyTo):
             MessageChatDeletePhoto,
             MessageChatOwnerLeft,
             MessageChatOwnerChanged,
+            MessageChatHasProtectedContentToggled,
+            MessageChatHasProtectedContentDisableRequested,
             MessageChatAddMembers,
             MessageChatJoinByLink,
             MessageChatJoinByRequest,
@@ -26677,6 +26793,9 @@ class Message(TlObject, MessageBoundMethods):
         sender_boost_count (:class:`int`):
             Number of times the sender of the message boosted the supergroup at the time the message was sent; 0 if none or unknown\. For messages sent by the current user, supergroupFullInfo\.my\_boost\_count must be used instead
 
+        sender_tag (:class:`str`):
+            Tag of the sender of the message in the supergroup at the time the message was sent; may be empty if none or unknown\. For messages sent in basic groups or supergroup administrators, the current custom title or tag must be used instead
+
         paid_message_star_count (:class:`int`):
             The number of Telegram Stars the sender paid to send the message
 
@@ -26735,6 +26854,7 @@ class Message(TlObject, MessageBoundMethods):
         via_bot_user_id: int = 0,
         sender_business_bot_user_id: int = 0,
         sender_boost_count: int = 0,
+        sender_tag: str = "",
         paid_message_star_count: int = 0,
         author_signature: str = "",
         media_album_id: int = 0,
@@ -26821,6 +26941,8 @@ class Message(TlObject, MessageBoundMethods):
         r"""If non\-zero, the user identifier of the business bot that sent this message"""
         self.sender_boost_count: int = int(sender_boost_count)
         r"""Number of times the sender of the message boosted the supergroup at the time the message was sent; 0 if none or unknown\. For messages sent by the current user, supergroupFullInfo\.my\_boost\_count must be used instead"""
+        self.sender_tag: Union[str, None] = sender_tag
+        r"""Tag of the sender of the message in the supergroup at the time the message was sent; may be empty if none or unknown\. For messages sent in basic groups or supergroup administrators, the current custom title or tag must be used instead"""
         self.paid_message_star_count: int = int(paid_message_star_count)
         r"""The number of Telegram Stars the sender paid to send the message"""
         self.author_signature: Union[str, None] = author_signature
@@ -26872,6 +26994,8 @@ class Message(TlObject, MessageBoundMethods):
             MessageChatDeletePhoto,
             MessageChatOwnerLeft,
             MessageChatOwnerChanged,
+            MessageChatHasProtectedContentToggled,
+            MessageChatHasProtectedContentDisableRequested,
             MessageChatAddMembers,
             MessageChatJoinByLink,
             MessageChatJoinByRequest,
@@ -26985,6 +27109,7 @@ class Message(TlObject, MessageBoundMethods):
             "via_bot_user_id": self.via_bot_user_id,
             "sender_business_bot_user_id": self.sender_business_bot_user_id,
             "sender_boost_count": self.sender_boost_count,
+            "sender_tag": self.sender_tag,
             "paid_message_star_count": self.paid_message_star_count,
             "author_signature": self.author_signature,
             "media_album_id": self.media_album_id,
@@ -27037,6 +27162,7 @@ class Message(TlObject, MessageBoundMethods):
                 data.get("sender_business_bot_user_id", 0)
             )
             data_class.sender_boost_count = int(data.get("sender_boost_count", 0))
+            data_class.sender_tag = data.get("sender_tag", "")
             data_class.paid_message_star_count = int(
                 data.get("paid_message_star_count", 0)
             )
@@ -28015,6 +28141,8 @@ class SponsoredMessage(TlObject):
             MessageChatDeletePhoto,
             MessageChatOwnerLeft,
             MessageChatOwnerChanged,
+            MessageChatHasProtectedContentToggled,
+            MessageChatHasProtectedContentDisableRequested,
             MessageChatAddMembers,
             MessageChatJoinByLink,
             MessageChatJoinByRequest,
@@ -30957,7 +31085,7 @@ class Chat(TlObject):
             Information about pending join requests; may be null if none
 
         reply_markup_message_id (:class:`int`):
-            Identifier of the message from which reply markup needs to be used; 0 if there is no default custom reply markup in the chat
+            Identifier of the message from which reply markup needs to be used; 0 if there is no reply markup in the chat
 
         draft_message (:class:`~pytdbot.types.DraftMessage`):
             A draft of a message in the chat; may be null if none
@@ -31119,7 +31247,7 @@ class Chat(TlObject):
         )
         r"""Information about pending join requests; may be null if none"""
         self.reply_markup_message_id: int = int(reply_markup_message_id)
-        r"""Identifier of the message from which reply markup needs to be used; 0 if there is no default custom reply markup in the chat"""
+        r"""Identifier of the message from which reply markup needs to be used; 0 if there is no reply markup in the chat"""
         self.draft_message: Union[DraftMessage, None] = draft_message
         r"""A draft of a message in the chat; may be null if none"""
         self.client_data: Union[str, None] = client_data
@@ -32898,7 +33026,7 @@ class InlineKeyboardButton(TlObject):
 
 
 class ReplyMarkupRemoveKeyboard(TlObject, ReplyMarkup):
-    r"""Instructs application to remove the keyboard once this message has been received\. This kind of keyboard can't be received in an incoming message; instead, updateChatReplyMarkup with message\_id \=\= 0 will be sent
+    r"""Instructs application to remove the keyboard once this message has been received\. This kind of keyboard can't be received in an incoming message; instead, updateChatReplyMarkup with reply\_markup\_message \=\= null will be sent
 
     Parameters:
         is_personal (:class:`bool`):
@@ -33161,21 +33289,6 @@ class LoginUrlInfoRequestConfirmation(TlObject, LoginUrlInfo):
         request_write_access (:class:`bool`):
             True, if the user must be asked for the permission to the bot to send them messages
 
-        request_phone_number_access (:class:`bool`):
-            True, if the user must be asked for the permission to share their phone number
-
-        browser (:class:`str`):
-            The version of a browser used for the authorization; may be empty if irrelevant
-
-        platform (:class:`str`):
-            Operating system the browser is running on; may be empty if irrelevant
-
-        ip_address (:class:`str`):
-            IP address from which the authorization is performed, in human\-readable format; may be empty if irrelevant
-
-        location (:class:`str`):
-            Human\-readable description of a country and a region from which the authorization is performed, based on the IP address; may be empty if irrelevant
-
     """
 
     def __init__(
@@ -33184,11 +33297,6 @@ class LoginUrlInfoRequestConfirmation(TlObject, LoginUrlInfo):
         domain: str = "",
         bot_user_id: int = 0,
         request_write_access: bool = False,
-        request_phone_number_access: bool = False,
-        browser: str = "",
-        platform: str = "",
-        ip_address: str = "",
-        location: str = "",
     ) -> None:
         self.url: Union[str, None] = url
         r"""An HTTP URL to be opened"""
@@ -33198,16 +33306,6 @@ class LoginUrlInfoRequestConfirmation(TlObject, LoginUrlInfo):
         r"""User identifier of a bot linked with the website"""
         self.request_write_access: bool = bool(request_write_access)
         r"""True, if the user must be asked for the permission to the bot to send them messages"""
-        self.request_phone_number_access: bool = bool(request_phone_number_access)
-        r"""True, if the user must be asked for the permission to share their phone number"""
-        self.browser: Union[str, None] = browser
-        r"""The version of a browser used for the authorization; may be empty if irrelevant"""
-        self.platform: Union[str, None] = platform
-        r"""Operating system the browser is running on; may be empty if irrelevant"""
-        self.ip_address: Union[str, None] = ip_address
-        r"""IP address from which the authorization is performed, in human\-readable format; may be empty if irrelevant"""
-        self.location: Union[str, None] = location
-        r"""Human\-readable description of a country and a region from which the authorization is performed, based on the IP address; may be empty if irrelevant"""
 
     def __str__(self):
         return str(pytdbot.utils.obj_to_json(self, indent=4))
@@ -33227,17 +33325,135 @@ class LoginUrlInfoRequestConfirmation(TlObject, LoginUrlInfo):
             "domain": self.domain,
             "bot_user_id": self.bot_user_id,
             "request_write_access": self.request_write_access,
-            "request_phone_number_access": self.request_phone_number_access,
-            "browser": self.browser,
-            "platform": self.platform,
-            "ip_address": self.ip_address,
-            "location": self.location,
         }
 
     @classmethod
     def from_dict(cls, data: dict) -> Union["LoginUrlInfoRequestConfirmation", None]:
         if data:
             data_class = cls()
+            data_class.url = data.get("url", "")
+            data_class.domain = data.get("domain", "")
+            data_class.bot_user_id = int(data.get("bot_user_id", 0))
+            data_class.request_write_access = data.get("request_write_access", False)
+
+        return data_class
+
+
+class OauthLinkInfo(TlObject):
+    r"""Information about the OAuth authorization
+
+    Parameters:
+        user_id (:class:`int`):
+            Identifier of the user for which the link was generated; may be 0 if unknown\. The corresponding user may be unknown\. If the user is logged in the app, then they must be chosen for authorization by default
+
+        url (:class:`str`):
+            An HTTP URL where the user authorizes
+
+        domain (:class:`str`):
+            A domain of the URL
+
+        bot_user_id (:class:`int`):
+            User identifier of a bot linked with the website
+
+        request_write_access (:class:`bool`):
+            True, if the user must be asked for the permission to the bot to send them messages
+
+        request_phone_number_access (:class:`bool`):
+            True, if the user must be asked for the permission to share their phone number
+
+        browser (:class:`str`):
+            The version of a browser used for the authorization
+
+        platform (:class:`str`):
+            Operating system the browser is running on
+
+        ip_address (:class:`str`):
+            IP address from which the authorization is performed, in human\-readable format
+
+        location (:class:`str`):
+            Human\-readable description of a country and a region from which the authorization is performed, based on the IP address
+
+        match_code_first (:class:`bool`):
+            True, if code matching dialog must be shown first and checkOauthRequestMatchCode must be called before acceptOauthRequest\. Otherwise, checkOauthRequestMatchCode must not be called
+
+        match_codes (List[:class:`str`]):
+            The list of codes to match; may be empty if irrelevant
+
+    """
+
+    def __init__(
+        self,
+        user_id: int = 0,
+        url: str = "",
+        domain: str = "",
+        bot_user_id: int = 0,
+        request_write_access: bool = False,
+        request_phone_number_access: bool = False,
+        browser: str = "",
+        platform: str = "",
+        ip_address: str = "",
+        location: str = "",
+        match_code_first: bool = False,
+        match_codes: List[str] = None,
+    ) -> None:
+        self.user_id: int = int(user_id)
+        r"""Identifier of the user for which the link was generated; may be 0 if unknown\. The corresponding user may be unknown\. If the user is logged in the app, then they must be chosen for authorization by default"""
+        self.url: Union[str, None] = url
+        r"""An HTTP URL where the user authorizes"""
+        self.domain: Union[str, None] = domain
+        r"""A domain of the URL"""
+        self.bot_user_id: int = int(bot_user_id)
+        r"""User identifier of a bot linked with the website"""
+        self.request_write_access: bool = bool(request_write_access)
+        r"""True, if the user must be asked for the permission to the bot to send them messages"""
+        self.request_phone_number_access: bool = bool(request_phone_number_access)
+        r"""True, if the user must be asked for the permission to share their phone number"""
+        self.browser: Union[str, None] = browser
+        r"""The version of a browser used for the authorization"""
+        self.platform: Union[str, None] = platform
+        r"""Operating system the browser is running on"""
+        self.ip_address: Union[str, None] = ip_address
+        r"""IP address from which the authorization is performed, in human\-readable format"""
+        self.location: Union[str, None] = location
+        r"""Human\-readable description of a country and a region from which the authorization is performed, based on the IP address"""
+        self.match_code_first: bool = bool(match_code_first)
+        r"""True, if code matching dialog must be shown first and checkOauthRequestMatchCode must be called before acceptOauthRequest\. Otherwise, checkOauthRequestMatchCode must not be called"""
+        self.match_codes: List[str] = match_codes or []
+        r"""The list of codes to match; may be empty if irrelevant"""
+
+    def __str__(self):
+        return str(pytdbot.utils.obj_to_json(self, indent=4))
+
+    @classmethod
+    def getType(self) -> Literal["oauthLinkInfo"]:
+        return "oauthLinkInfo"
+
+    @classmethod
+    def getClass(self) -> Literal["OauthLinkInfo"]:
+        return "OauthLinkInfo"
+
+    def to_dict(self) -> dict:
+        return {
+            "@type": self.getType(),
+            "user_id": self.user_id,
+            "url": self.url,
+            "domain": self.domain,
+            "bot_user_id": self.bot_user_id,
+            "request_write_access": self.request_write_access,
+            "request_phone_number_access": self.request_phone_number_access,
+            "browser": self.browser,
+            "platform": self.platform,
+            "ip_address": self.ip_address,
+            "location": self.location,
+            "match_code_first": self.match_code_first,
+            "match_codes": self.match_codes,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Union["OauthLinkInfo", None]:
+        if data:
+            data_class = cls()
+            data_class.user_id = int(data.get("user_id", 0))
             data_class.url = data.get("url", "")
             data_class.domain = data.get("domain", "")
             data_class.bot_user_id = int(data.get("bot_user_id", 0))
@@ -33249,6 +33465,8 @@ class LoginUrlInfoRequestConfirmation(TlObject, LoginUrlInfo):
             data_class.platform = data.get("platform", "")
             data_class.ip_address = data.get("ip_address", "")
             data_class.location = data.get("location", "")
+            data_class.match_code_first = data.get("match_code_first", False)
+            data_class.match_codes = data.get("match_codes", None)
 
         return data_class
 
@@ -38205,6 +38423,7 @@ class WebPageInstantView(TlObject):
             InternalLinkTypeNewGroupChat,
             InternalLinkTypeNewPrivateChat,
             InternalLinkTypeNewStory,
+            InternalLinkTypeOauth,
             InternalLinkTypePassportDataRequest,
             InternalLinkTypePhoneNumberConfirmation,
             InternalLinkTypePremiumFeaturesPage,
@@ -38760,6 +38979,9 @@ class LinkPreviewTypeEmbeddedAnimationPlayer(TlObject, LinkPreviewType):
         url (:class:`str`):
             URL of the external animation player
 
+        animation (:class:`~pytdbot.types.Animation`):
+            The cached animation; may be null if unknown
+
         thumbnail (:class:`~pytdbot.types.Photo`):
             Thumbnail of the animation; may be null if unknown
 
@@ -38777,6 +38999,7 @@ class LinkPreviewTypeEmbeddedAnimationPlayer(TlObject, LinkPreviewType):
     def __init__(
         self,
         url: str = "",
+        animation: Animation = None,
         thumbnail: Photo = None,
         duration: int = 0,
         width: int = 0,
@@ -38784,6 +39007,8 @@ class LinkPreviewTypeEmbeddedAnimationPlayer(TlObject, LinkPreviewType):
     ) -> None:
         self.url: Union[str, None] = url
         r"""URL of the external animation player"""
+        self.animation: Union[Animation, None] = animation
+        r"""The cached animation; may be null if unknown"""
         self.thumbnail: Union[Photo, None] = thumbnail
         r"""Thumbnail of the animation; may be null if unknown"""
         self.duration: int = int(duration)
@@ -38808,6 +39033,7 @@ class LinkPreviewTypeEmbeddedAnimationPlayer(TlObject, LinkPreviewType):
         return {
             "@type": self.getType(),
             "url": self.url,
+            "animation": self.animation,
             "thumbnail": self.thumbnail,
             "duration": self.duration,
             "width": self.width,
@@ -38821,6 +39047,7 @@ class LinkPreviewTypeEmbeddedAnimationPlayer(TlObject, LinkPreviewType):
         if data:
             data_class = cls()
             data_class.url = data.get("url", "")
+            data_class.animation = data.get("animation", None)
             data_class.thumbnail = data.get("thumbnail", None)
             data_class.duration = int(data.get("duration", 0))
             data_class.width = int(data.get("width", 0))
@@ -38835,6 +39062,9 @@ class LinkPreviewTypeEmbeddedAudioPlayer(TlObject, LinkPreviewType):
     Parameters:
         url (:class:`str`):
             URL of the external audio player
+
+        audio (:class:`~pytdbot.types.Audio`):
+            The cached audio; may be null if unknown
 
         thumbnail (:class:`~pytdbot.types.Photo`):
             Thumbnail of the audio; may be null if unknown
@@ -38853,6 +39083,7 @@ class LinkPreviewTypeEmbeddedAudioPlayer(TlObject, LinkPreviewType):
     def __init__(
         self,
         url: str = "",
+        audio: Audio = None,
         thumbnail: Photo = None,
         duration: int = 0,
         width: int = 0,
@@ -38860,6 +39091,8 @@ class LinkPreviewTypeEmbeddedAudioPlayer(TlObject, LinkPreviewType):
     ) -> None:
         self.url: Union[str, None] = url
         r"""URL of the external audio player"""
+        self.audio: Union[Audio, None] = audio
+        r"""The cached audio; may be null if unknown"""
         self.thumbnail: Union[Photo, None] = thumbnail
         r"""Thumbnail of the audio; may be null if unknown"""
         self.duration: int = int(duration)
@@ -38884,6 +39117,7 @@ class LinkPreviewTypeEmbeddedAudioPlayer(TlObject, LinkPreviewType):
         return {
             "@type": self.getType(),
             "url": self.url,
+            "audio": self.audio,
             "thumbnail": self.thumbnail,
             "duration": self.duration,
             "width": self.width,
@@ -38895,6 +39129,7 @@ class LinkPreviewTypeEmbeddedAudioPlayer(TlObject, LinkPreviewType):
         if data:
             data_class = cls()
             data_class.url = data.get("url", "")
+            data_class.audio = data.get("audio", None)
             data_class.thumbnail = data.get("thumbnail", None)
             data_class.duration = int(data.get("duration", 0))
             data_class.width = int(data.get("width", 0))
@@ -38909,6 +39144,9 @@ class LinkPreviewTypeEmbeddedVideoPlayer(TlObject, LinkPreviewType):
     Parameters:
         url (:class:`str`):
             URL of the external video player
+
+        video (:class:`~pytdbot.types.Video`):
+            The cached video; may be null if unknown
 
         thumbnail (:class:`~pytdbot.types.Photo`):
             Thumbnail of the video; may be null if unknown
@@ -38927,6 +39165,7 @@ class LinkPreviewTypeEmbeddedVideoPlayer(TlObject, LinkPreviewType):
     def __init__(
         self,
         url: str = "",
+        video: Video = None,
         thumbnail: Photo = None,
         duration: int = 0,
         width: int = 0,
@@ -38934,6 +39173,8 @@ class LinkPreviewTypeEmbeddedVideoPlayer(TlObject, LinkPreviewType):
     ) -> None:
         self.url: Union[str, None] = url
         r"""URL of the external video player"""
+        self.video: Union[Video, None] = video
+        r"""The cached video; may be null if unknown"""
         self.thumbnail: Union[Photo, None] = thumbnail
         r"""Thumbnail of the video; may be null if unknown"""
         self.duration: int = int(duration)
@@ -38958,6 +39199,7 @@ class LinkPreviewTypeEmbeddedVideoPlayer(TlObject, LinkPreviewType):
         return {
             "@type": self.getType(),
             "url": self.url,
+            "video": self.video,
             "thumbnail": self.thumbnail,
             "duration": self.duration,
             "width": self.width,
@@ -38969,6 +39211,7 @@ class LinkPreviewTypeEmbeddedVideoPlayer(TlObject, LinkPreviewType):
         if data:
             data_class = cls()
             data_class.url = data.get("url", "")
+            data_class.video = data.get("video", None)
             data_class.thumbnail = data.get("thumbnail", None)
             data_class.duration = int(data.get("duration", 0))
             data_class.width = int(data.get("width", 0))
@@ -46843,6 +47086,9 @@ class MessageCall(TlObject, MessageContent):
     r"""A message with information about an ended call
 
     Parameters:
+        unique_id (:class:`int`):
+            Persistent unique call identifier; 0 for calls from other devices, which can't be passed as inputCallFromMessage
+
         is_video (:class:`bool`):
             True, if the call was a video call
 
@@ -46856,10 +47102,13 @@ class MessageCall(TlObject, MessageContent):
 
     def __init__(
         self,
+        unique_id: int = 0,
         is_video: bool = False,
         discard_reason: CallDiscardReason = None,
         duration: int = 0,
     ) -> None:
+        self.unique_id: int = int(unique_id)
+        r"""Persistent unique call identifier; 0 for calls from other devices, which can't be passed as inputCallFromMessage"""
         self.is_video: bool = bool(is_video)
         r"""True, if the call was a video call"""
         self.discard_reason: Union[
@@ -46889,6 +47138,7 @@ class MessageCall(TlObject, MessageContent):
     def to_dict(self) -> dict:
         return {
             "@type": self.getType(),
+            "unique_id": self.unique_id,
             "is_video": self.is_video,
             "discard_reason": self.discard_reason,
             "duration": self.duration,
@@ -46898,6 +47148,7 @@ class MessageCall(TlObject, MessageContent):
     def from_dict(cls, data: dict) -> Union["MessageCall", None]:
         if data:
             data_class = cls()
+            data_class.unique_id = int(data.get("unique_id", 0))
             data_class.is_video = data.get("is_video", False)
             data_class.discard_reason = data.get("discard_reason", None)
             data_class.duration = int(data.get("duration", 0))
@@ -47401,6 +47652,108 @@ class MessageChatOwnerChanged(TlObject, MessageContent):
         if data:
             data_class = cls()
             data_class.new_owner_user_id = int(data.get("new_owner_user_id", 0))
+
+        return data_class
+
+
+class MessageChatHasProtectedContentToggled(TlObject, MessageContent):
+    r"""Chat has\_protected\_content setting was changed or request to change it was rejected
+
+    Parameters:
+        request_message_id (:class:`int`):
+            Identifier of the message with the request to change the setting; can be an identifier of a deleted message or 0
+
+        old_has_protected_content (:class:`bool`):
+            Previous value of the setting
+
+        new_has_protected_content (:class:`bool`):
+            New value of the setting
+
+    """
+
+    def __init__(
+        self,
+        request_message_id: int = 0,
+        old_has_protected_content: bool = False,
+        new_has_protected_content: bool = False,
+    ) -> None:
+        self.request_message_id: int = int(request_message_id)
+        r"""Identifier of the message with the request to change the setting; can be an identifier of a deleted message or 0"""
+        self.old_has_protected_content: bool = bool(old_has_protected_content)
+        r"""Previous value of the setting"""
+        self.new_has_protected_content: bool = bool(new_has_protected_content)
+        r"""New value of the setting"""
+
+    def __str__(self):
+        return str(pytdbot.utils.obj_to_json(self, indent=4))
+
+    @classmethod
+    def getType(self) -> Literal["messageChatHasProtectedContentToggled"]:
+        return "messageChatHasProtectedContentToggled"
+
+    @classmethod
+    def getClass(self) -> Literal["MessageContent"]:
+        return "MessageContent"
+
+    def to_dict(self) -> dict:
+        return {
+            "@type": self.getType(),
+            "request_message_id": self.request_message_id,
+            "old_has_protected_content": self.old_has_protected_content,
+            "new_has_protected_content": self.new_has_protected_content,
+        }
+
+    @classmethod
+    def from_dict(
+        cls, data: dict
+    ) -> Union["MessageChatHasProtectedContentToggled", None]:
+        if data:
+            data_class = cls()
+            data_class.request_message_id = int(data.get("request_message_id", 0))
+            data_class.old_has_protected_content = data.get(
+                "old_has_protected_content", False
+            )
+            data_class.new_has_protected_content = data.get(
+                "new_has_protected_content", False
+            )
+
+        return data_class
+
+
+class MessageChatHasProtectedContentDisableRequested(TlObject, MessageContent):
+    r"""Chat has\_protected\_content setting was requested to be disabled
+
+    Parameters:
+        is_expired (:class:`bool`):
+            True, if the request has expired
+
+    """
+
+    def __init__(self, is_expired: bool = False) -> None:
+        self.is_expired: bool = bool(is_expired)
+        r"""True, if the request has expired"""
+
+    def __str__(self):
+        return str(pytdbot.utils.obj_to_json(self, indent=4))
+
+    @classmethod
+    def getType(self) -> Literal["messageChatHasProtectedContentDisableRequested"]:
+        return "messageChatHasProtectedContentDisableRequested"
+
+    @classmethod
+    def getClass(self) -> Literal["MessageContent"]:
+        return "MessageContent"
+
+    def to_dict(self) -> dict:
+        return {"@type": self.getType(), "is_expired": self.is_expired}
+
+    @classmethod
+    def from_dict(
+        cls, data: dict
+    ) -> Union["MessageChatHasProtectedContentDisableRequested", None]:
+        if data:
+            data_class = cls()
+            data_class.is_expired = data.get("is_expired", False)
 
         return data_class
 
@@ -50824,6 +51177,186 @@ class MessageUnsupported(TlObject, MessageContent):
         return data_class
 
 
+class DateTimePartPrecisionNone(TlObject, DateTimePartPrecision):
+    r"""Don't show the date or time"""
+
+    def __init__(self) -> None:
+        pass
+
+    def __str__(self):
+        return str(pytdbot.utils.obj_to_json(self, indent=4))
+
+    @classmethod
+    def getType(self) -> Literal["dateTimePartPrecisionNone"]:
+        return "dateTimePartPrecisionNone"
+
+    @classmethod
+    def getClass(self) -> Literal["DateTimePartPrecision"]:
+        return "DateTimePartPrecision"
+
+    def to_dict(self) -> dict:
+        return {"@type": self.getType()}
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Union["DateTimePartPrecisionNone", None]:
+        if data:
+            data_class = cls()
+
+        return data_class
+
+
+class DateTimePartPrecisionShort(TlObject, DateTimePartPrecision):
+    r"""Show the date or time in a short way \(17\.03\.22 or 22:45\)"""
+
+    def __init__(self) -> None:
+        pass
+
+    def __str__(self):
+        return str(pytdbot.utils.obj_to_json(self, indent=4))
+
+    @classmethod
+    def getType(self) -> Literal["dateTimePartPrecisionShort"]:
+        return "dateTimePartPrecisionShort"
+
+    @classmethod
+    def getClass(self) -> Literal["DateTimePartPrecision"]:
+        return "DateTimePartPrecision"
+
+    def to_dict(self) -> dict:
+        return {"@type": self.getType()}
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Union["DateTimePartPrecisionShort", None]:
+        if data:
+            data_class = cls()
+
+        return data_class
+
+
+class DateTimePartPrecisionLong(TlObject, DateTimePartPrecision):
+    r"""Show the date or time in a long way \(March 17, 2022 or 22:45:00\)"""
+
+    def __init__(self) -> None:
+        pass
+
+    def __str__(self):
+        return str(pytdbot.utils.obj_to_json(self, indent=4))
+
+    @classmethod
+    def getType(self) -> Literal["dateTimePartPrecisionLong"]:
+        return "dateTimePartPrecisionLong"
+
+    @classmethod
+    def getClass(self) -> Literal["DateTimePartPrecision"]:
+        return "DateTimePartPrecision"
+
+    def to_dict(self) -> dict:
+        return {"@type": self.getType()}
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Union["DateTimePartPrecisionLong", None]:
+        if data:
+            data_class = cls()
+
+        return data_class
+
+
+class DateTimeFormattingTypeRelative(TlObject, DateTimeFormattingType):
+    r"""The time must be shown relative to the current time \(\[in \] X seconds, minutes, hours, days, months, years \[ago\]\)"""
+
+    def __init__(self) -> None:
+        pass
+
+    def __str__(self):
+        return str(pytdbot.utils.obj_to_json(self, indent=4))
+
+    @classmethod
+    def getType(self) -> Literal["dateTimeFormattingTypeRelative"]:
+        return "dateTimeFormattingTypeRelative"
+
+    @classmethod
+    def getClass(self) -> Literal["DateTimeFormattingType"]:
+        return "DateTimeFormattingType"
+
+    def to_dict(self) -> dict:
+        return {"@type": self.getType()}
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Union["DateTimeFormattingTypeRelative", None]:
+        if data:
+            data_class = cls()
+
+        return data_class
+
+
+class DateTimeFormattingTypeAbsolute(TlObject, DateTimeFormattingType):
+    r"""The date and time must be shown as absolute timestamps
+
+    Parameters:
+        time_precision (:class:`~pytdbot.types.DateTimePartPrecision`):
+            The precision with which hours, minutes and seconds are shown
+
+        date_precision (:class:`~pytdbot.types.DateTimePartPrecision`):
+            The precision with which the date is shown
+
+        show_day_of_week (:class:`bool`):
+            True, if the day of week must be shown
+
+    """
+
+    def __init__(
+        self,
+        time_precision: DateTimePartPrecision = None,
+        date_precision: DateTimePartPrecision = None,
+        show_day_of_week: bool = False,
+    ) -> None:
+        self.time_precision: Union[
+            DateTimePartPrecisionNone,
+            DateTimePartPrecisionShort,
+            DateTimePartPrecisionLong,
+            None,
+        ] = time_precision
+        r"""The precision with which hours, minutes and seconds are shown"""
+        self.date_precision: Union[
+            DateTimePartPrecisionNone,
+            DateTimePartPrecisionShort,
+            DateTimePartPrecisionLong,
+            None,
+        ] = date_precision
+        r"""The precision with which the date is shown"""
+        self.show_day_of_week: bool = bool(show_day_of_week)
+        r"""True, if the day of week must be shown"""
+
+    def __str__(self):
+        return str(pytdbot.utils.obj_to_json(self, indent=4))
+
+    @classmethod
+    def getType(self) -> Literal["dateTimeFormattingTypeAbsolute"]:
+        return "dateTimeFormattingTypeAbsolute"
+
+    @classmethod
+    def getClass(self) -> Literal["DateTimeFormattingType"]:
+        return "DateTimeFormattingType"
+
+    def to_dict(self) -> dict:
+        return {
+            "@type": self.getType(),
+            "time_precision": self.time_precision,
+            "date_precision": self.date_precision,
+            "show_day_of_week": self.show_day_of_week,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Union["DateTimeFormattingTypeAbsolute", None]:
+        if data:
+            data_class = cls()
+            data_class.time_precision = data.get("time_precision", None)
+            data_class.date_precision = data.get("date_precision", None)
+            data_class.show_day_of_week = data.get("show_day_of_week", False)
+
+        return data_class
+
+
 class TextEntityTypeMention(TlObject, TextEntityType):
     r"""A mention of a user, a supergroup, or a channel by their username"""
 
@@ -51476,6 +52009,56 @@ class TextEntityTypeMediaTimestamp(TlObject, TextEntityType):
         if data:
             data_class = cls()
             data_class.media_timestamp = int(data.get("media_timestamp", 0))
+
+        return data_class
+
+
+class TextEntityTypeDateTime(TlObject, TextEntityType):
+    r"""A data and time
+
+    Parameters:
+        unix_time (:class:`int`):
+            Point in time \(Unix timestamp\) representing the data and time
+
+        formatting_type (:class:`~pytdbot.types.DateTimeFormattingType`):
+            Date and time formatting type; may be null if none and the original text must not be changed
+
+    """
+
+    def __init__(
+        self, unix_time: int = 0, formatting_type: DateTimeFormattingType = None
+    ) -> None:
+        self.unix_time: int = int(unix_time)
+        r"""Point in time \(Unix timestamp\) representing the data and time"""
+        self.formatting_type: Union[
+            DateTimeFormattingTypeRelative, DateTimeFormattingTypeAbsolute, None
+        ] = formatting_type
+        r"""Date and time formatting type; may be null if none and the original text must not be changed"""
+
+    def __str__(self):
+        return str(pytdbot.utils.obj_to_json(self, indent=4))
+
+    @classmethod
+    def getType(self) -> Literal["textEntityTypeDateTime"]:
+        return "textEntityTypeDateTime"
+
+    @classmethod
+    def getClass(self) -> Literal["TextEntityType"]:
+        return "TextEntityType"
+
+    def to_dict(self) -> dict:
+        return {
+            "@type": self.getType(),
+            "unix_time": self.unix_time,
+            "formatting_type": self.formatting_type,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Union["TextEntityTypeDateTime", None]:
+        if data:
+            data_class = cls()
+            data_class.unix_time = int(data.get("unix_time", 0))
+            data_class.formatting_type = data.get("formatting_type", None)
 
         return data_class
 
@@ -53780,6 +54363,12 @@ class MessageProperties(TlObject):
         can_set_fact_check (:class:`bool`):
             True, if fact check for the message can be changed through setMessageFactCheck
 
+        has_protected_content_by_current_user (:class:`bool`):
+            True, if content of the message can't be saved locally, because it is protected by the current user; if true, then can\_be\_saved is false
+
+        has_protected_content_by_other_user (:class:`bool`):
+            True, if content of the message can't be saved locally, because it is protected by the other user; if true, then can\_be\_saved is false
+
         need_show_statistics (:class:`bool`):
             True, if message statistics must be available from context menu of the message
 
@@ -53821,6 +54410,8 @@ class MessageProperties(TlObject):
         can_report_reactions: bool = False,
         can_report_supergroup_spam: bool = False,
         can_set_fact_check: bool = False,
+        has_protected_content_by_current_user: bool = False,
+        has_protected_content_by_other_user: bool = False,
         need_show_statistics: bool = False,
     ) -> None:
         self.can_add_offer: bool = bool(can_add_offer)
@@ -53891,6 +54482,14 @@ class MessageProperties(TlObject):
         r"""True, if the message can be reported using reportSupergroupSpam"""
         self.can_set_fact_check: bool = bool(can_set_fact_check)
         r"""True, if fact check for the message can be changed through setMessageFactCheck"""
+        self.has_protected_content_by_current_user: bool = bool(
+            has_protected_content_by_current_user
+        )
+        r"""True, if content of the message can't be saved locally, because it is protected by the current user; if true, then can\_be\_saved is false"""
+        self.has_protected_content_by_other_user: bool = bool(
+            has_protected_content_by_other_user
+        )
+        r"""True, if content of the message can't be saved locally, because it is protected by the other user; if true, then can\_be\_saved is false"""
         self.need_show_statistics: bool = bool(need_show_statistics)
         r"""True, if message statistics must be available from context menu of the message"""
 
@@ -53942,6 +54541,8 @@ class MessageProperties(TlObject):
             "can_report_reactions": self.can_report_reactions,
             "can_report_supergroup_spam": self.can_report_supergroup_spam,
             "can_set_fact_check": self.can_set_fact_check,
+            "has_protected_content_by_current_user": self.has_protected_content_by_current_user,
+            "has_protected_content_by_other_user": self.has_protected_content_by_other_user,
             "need_show_statistics": self.need_show_statistics,
         }
 
@@ -54009,6 +54610,12 @@ class MessageProperties(TlObject):
                 "can_report_supergroup_spam", False
             )
             data_class.can_set_fact_check = data.get("can_set_fact_check", False)
+            data_class.has_protected_content_by_current_user = data.get(
+                "has_protected_content_by_current_user", False
+            )
+            data_class.has_protected_content_by_other_user = data.get(
+                "has_protected_content_by_other_user", False
+            )
             data_class.need_show_statistics = data.get("need_show_statistics", False)
 
         return data_class
@@ -58895,6 +59502,8 @@ class QuickReplyMessage(TlObject):
             MessageChatDeletePhoto,
             MessageChatOwnerLeft,
             MessageChatOwnerChanged,
+            MessageChatHasProtectedContentToggled,
+            MessageChatHasProtectedContentDisableRequested,
             MessageChatAddMembers,
             MessageChatJoinByLink,
             MessageChatJoinByRequest,
@@ -60867,6 +61476,88 @@ class GroupCallId(TlObject):
         if data:
             data_class = cls()
             data_class.id = int(data.get("id", 0))
+
+        return data_class
+
+
+class InputCallDiscarded(TlObject, InputCall):
+    r"""A just ended call
+
+    Parameters:
+        call_id (:class:`int`):
+            Identifier of the call
+
+    """
+
+    def __init__(self, call_id: int = 0) -> None:
+        self.call_id: int = int(call_id)
+        r"""Identifier of the call"""
+
+    def __str__(self):
+        return str(pytdbot.utils.obj_to_json(self, indent=4))
+
+    @classmethod
+    def getType(self) -> Literal["inputCallDiscarded"]:
+        return "inputCallDiscarded"
+
+    @classmethod
+    def getClass(self) -> Literal["InputCall"]:
+        return "InputCall"
+
+    def to_dict(self) -> dict:
+        return {"@type": self.getType(), "call_id": self.call_id}
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Union["InputCallDiscarded", None]:
+        if data:
+            data_class = cls()
+            data_class.call_id = int(data.get("call_id", 0))
+
+        return data_class
+
+
+class InputCallFromMessage(TlObject, InputCall):
+    r"""A call from a message of the type messageCall with non\-zero messageCall\.unique\_id
+
+    Parameters:
+        chat_id (:class:`int`):
+            Chat identifier of the message
+
+        message_id (:class:`int`):
+            Message identifier
+
+    """
+
+    def __init__(self, chat_id: int = 0, message_id: int = 0) -> None:
+        self.chat_id: int = int(chat_id)
+        r"""Chat identifier of the message"""
+        self.message_id: int = int(message_id)
+        r"""Message identifier"""
+
+    def __str__(self):
+        return str(pytdbot.utils.obj_to_json(self, indent=4))
+
+    @classmethod
+    def getType(self) -> Literal["inputCallFromMessage"]:
+        return "inputCallFromMessage"
+
+    @classmethod
+    def getClass(self) -> Literal["InputCall"]:
+        return "InputCall"
+
+    def to_dict(self) -> dict:
+        return {
+            "@type": self.getType(),
+            "chat_id": self.chat_id,
+            "message_id": self.message_id,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Union["InputCallFromMessage", None]:
+        if data:
+            data_class = cls()
+            data_class.chat_id = int(data.get("chat_id", 0))
+            data_class.message_id = int(data.get("message_id", 0))
 
         return data_class
 
@@ -64792,6 +65483,7 @@ class TargetChatInternalLink(TlObject, TargetChat):
             InternalLinkTypeNewGroupChat,
             InternalLinkTypeNewPrivateChat,
             InternalLinkTypeNewStory,
+            InternalLinkTypeOauth,
             InternalLinkTypePassportDataRequest,
             InternalLinkTypePhoneNumberConfirmation,
             InternalLinkTypePremiumFeaturesPage,
@@ -68178,6 +68870,59 @@ class ChatEventMemberRestricted(TlObject, ChatEventAction):
         return data_class
 
 
+class ChatEventMemberTagChanged(TlObject, ChatEventAction):
+    r"""A chat member tag has been changed
+
+    Parameters:
+        user_id (:class:`int`):
+            Affected chat member user identifier
+
+        old_tag (:class:`str`):
+            Previous tag of the chat member
+
+        new_tag (:class:`str`):
+            New tag of the chat member
+
+    """
+
+    def __init__(self, user_id: int = 0, old_tag: str = "", new_tag: str = "") -> None:
+        self.user_id: int = int(user_id)
+        r"""Affected chat member user identifier"""
+        self.old_tag: Union[str, None] = old_tag
+        r"""Previous tag of the chat member"""
+        self.new_tag: Union[str, None] = new_tag
+        r"""New tag of the chat member"""
+
+    def __str__(self):
+        return str(pytdbot.utils.obj_to_json(self, indent=4))
+
+    @classmethod
+    def getType(self) -> Literal["chatEventMemberTagChanged"]:
+        return "chatEventMemberTagChanged"
+
+    @classmethod
+    def getClass(self) -> Literal["ChatEventAction"]:
+        return "ChatEventAction"
+
+    def to_dict(self) -> dict:
+        return {
+            "@type": self.getType(),
+            "user_id": self.user_id,
+            "old_tag": self.old_tag,
+            "new_tag": self.new_tag,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Union["ChatEventMemberTagChanged", None]:
+        if data:
+            data_class = cls()
+            data_class.user_id = int(data.get("user_id", 0))
+            data_class.old_tag = data.get("old_tag", "")
+            data_class.new_tag = data.get("new_tag", "")
+
+        return data_class
+
+
 class ChatEventMemberSubscriptionExtended(TlObject, ChatEventAction):
     r"""A chat member extended their subscription to the chat
 
@@ -70086,6 +70831,7 @@ class ChatEvent(TlObject):
             ChatEventMemberLeft,
             ChatEventMemberPromoted,
             ChatEventMemberRestricted,
+            ChatEventMemberTagChanged,
             ChatEventMemberSubscriptionExtended,
             ChatEventAvailableReactionsChanged,
             ChatEventBackgroundChanged,
@@ -70226,6 +70972,9 @@ class ChatEventLogFilters(TlObject):
         member_restrictions (:class:`bool`):
             True, if member restricted/unrestricted/banned/unbanned events need to be returned
 
+        member_tag_changes (:class:`bool`):
+            True, if member tag and custom title change events need to be returned
+
         info_changes (:class:`bool`):
             True, if changes in chat information need to be returned
 
@@ -70256,6 +71005,7 @@ class ChatEventLogFilters(TlObject):
         member_invites: bool = False,
         member_promotions: bool = False,
         member_restrictions: bool = False,
+        member_tag_changes: bool = False,
         info_changes: bool = False,
         setting_changes: bool = False,
         invite_link_changes: bool = False,
@@ -70279,6 +71029,8 @@ class ChatEventLogFilters(TlObject):
         r"""True, if member promotion/demotion events need to be returned"""
         self.member_restrictions: bool = bool(member_restrictions)
         r"""True, if member restricted/unrestricted/banned/unbanned events need to be returned"""
+        self.member_tag_changes: bool = bool(member_tag_changes)
+        r"""True, if member tag and custom title change events need to be returned"""
         self.info_changes: bool = bool(info_changes)
         r"""True, if changes in chat information need to be returned"""
         self.setting_changes: bool = bool(setting_changes)
@@ -70314,6 +71066,7 @@ class ChatEventLogFilters(TlObject):
             "member_invites": self.member_invites,
             "member_promotions": self.member_promotions,
             "member_restrictions": self.member_restrictions,
+            "member_tag_changes": self.member_tag_changes,
             "info_changes": self.info_changes,
             "setting_changes": self.setting_changes,
             "invite_link_changes": self.invite_link_changes,
@@ -70334,6 +71087,7 @@ class ChatEventLogFilters(TlObject):
             data_class.member_invites = data.get("member_invites", False)
             data_class.member_promotions = data.get("member_promotions", False)
             data_class.member_restrictions = data.get("member_restrictions", False)
+            data_class.member_tag_changes = data.get("member_tag_changes", False)
             data_class.info_changes = data.get("info_changes", False)
             data_class.setting_changes = data.get("setting_changes", False)
             data_class.invite_link_changes = data.get("invite_link_changes", False)
@@ -72041,6 +72795,36 @@ class PremiumFeaturePaidMessages(TlObject, PremiumFeature):
         return data_class
 
 
+class PremiumFeatureProtectPrivateChatContent(TlObject, PremiumFeature):
+    r"""The ability to enable content protection in private chats"""
+
+    def __init__(self) -> None:
+        pass
+
+    def __str__(self):
+        return str(pytdbot.utils.obj_to_json(self, indent=4))
+
+    @classmethod
+    def getType(self) -> Literal["premiumFeatureProtectPrivateChatContent"]:
+        return "premiumFeatureProtectPrivateChatContent"
+
+    @classmethod
+    def getClass(self) -> Literal["PremiumFeature"]:
+        return "PremiumFeature"
+
+    def to_dict(self) -> dict:
+        return {"@type": self.getType()}
+
+    @classmethod
+    def from_dict(
+        cls, data: dict
+    ) -> Union["PremiumFeatureProtectPrivateChatContent", None]:
+        if data:
+            data_class = cls()
+
+        return data_class
+
+
 class BusinessFeatureLocation(TlObject, BusinessFeature):
     r"""The ability to set location"""
 
@@ -72687,6 +73471,7 @@ class PremiumFeatures(TlObject):
             InternalLinkTypeNewGroupChat,
             InternalLinkTypeNewPrivateChat,
             InternalLinkTypeNewStory,
+            InternalLinkTypeOauth,
             InternalLinkTypePassportDataRequest,
             InternalLinkTypePhoneNumberConfirmation,
             InternalLinkTypePremiumFeaturesPage,
@@ -72874,6 +73659,7 @@ class PremiumSourceFeature(TlObject, PremiumSource):
             PremiumFeatureMessageEffects,
             PremiumFeatureChecklists,
             PremiumFeaturePaidMessages,
+            PremiumFeatureProtectPrivateChatContent,
             None,
         ] = feature
         r"""The used feature"""
@@ -73101,6 +73887,7 @@ class PremiumFeaturePromotionAnimation(TlObject):
             PremiumFeatureMessageEffects,
             PremiumFeatureChecklists,
             PremiumFeaturePaidMessages,
+            PremiumFeatureProtectPrivateChatContent,
             None,
         ] = feature
         r"""Premium feature"""
@@ -84244,6 +85031,42 @@ class InternalLinkTypeNewStory(TlObject, InternalLinkType):
         return data_class
 
 
+class InternalLinkTypeOauth(TlObject, InternalLinkType):
+    r"""The link is an OAuth link\. Call getOauthLinkInfo with the given URL to process the link if the link was received from outside of the application; otherwise, ignore it\. After getOauthLinkInfo, show the user confirmation dialog and process it with checkOauthRequestMatchCode, acceptOauthRequest or declineOauthRequest
+
+    Parameters:
+        url (:class:`str`):
+            URL to be passed to getOauthLinkInfo
+
+    """
+
+    def __init__(self, url: str = "") -> None:
+        self.url: Union[str, None] = url
+        r"""URL to be passed to getOauthLinkInfo"""
+
+    def __str__(self):
+        return str(pytdbot.utils.obj_to_json(self, indent=4))
+
+    @classmethod
+    def getType(self) -> Literal["internalLinkTypeOauth"]:
+        return "internalLinkTypeOauth"
+
+    @classmethod
+    def getClass(self) -> Literal["InternalLinkType"]:
+        return "InternalLinkType"
+
+    def to_dict(self) -> dict:
+        return {"@type": self.getType(), "url": self.url}
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Union["InternalLinkTypeOauth", None]:
+        if data:
+            data_class = cls()
+            data_class.url = data.get("url", "")
+
+        return data_class
+
+
 class InternalLinkTypePassportDataRequest(TlObject, InternalLinkType):
     r"""The link contains a request of Telegram passport data\. Call getPassportAuthorizationForm with the given parameters to process the link if the link was received from outside of the application; otherwise, ignore it
 
@@ -92451,6 +93274,8 @@ class UpdateMessageContent(TlObject, Update):
             MessageChatDeletePhoto,
             MessageChatOwnerLeft,
             MessageChatOwnerChanged,
+            MessageChatHasProtectedContentToggled,
+            MessageChatHasProtectedContentDisableRequested,
             MessageChatAddMembers,
             MessageChatJoinByLink,
             MessageChatJoinByRequest,
@@ -94124,22 +94949,22 @@ class UpdateChatPendingJoinRequests(TlObject, Update):
 
 
 class UpdateChatReplyMarkup(TlObject, Update):
-    r"""The default chat reply markup was changed\. Can occur because new messages with reply markup were received or because an old reply markup was hidden by the user
+    r"""The chat reply markup was changed
 
     Parameters:
         chat_id (:class:`int`):
             Chat identifier
 
-        reply_markup_message_id (:class:`int`):
-            Identifier of the message from which reply markup needs to be used; 0 if there is no default custom reply markup in the chat
+        reply_markup_message (:class:`~pytdbot.types.Message`):
+            The message from which the reply markup must be used; may be null if there is no default reply markup in the chat
 
     """
 
-    def __init__(self, chat_id: int = 0, reply_markup_message_id: int = 0) -> None:
+    def __init__(self, chat_id: int = 0, reply_markup_message: Message = None) -> None:
         self.chat_id: int = int(chat_id)
         r"""Chat identifier"""
-        self.reply_markup_message_id: int = int(reply_markup_message_id)
-        r"""Identifier of the message from which reply markup needs to be used; 0 if there is no default custom reply markup in the chat"""
+        self.reply_markup_message: Union[Message, None] = reply_markup_message
+        r"""The message from which the reply markup must be used; may be null if there is no default reply markup in the chat"""
 
     def __str__(self):
         return str(pytdbot.utils.obj_to_json(self, indent=4))
@@ -94156,7 +94981,7 @@ class UpdateChatReplyMarkup(TlObject, Update):
         return {
             "@type": self.getType(),
             "chat_id": self.chat_id,
-            "reply_markup_message_id": self.reply_markup_message_id,
+            "reply_markup_message": self.reply_markup_message,
         }
 
     @classmethod
@@ -94164,9 +94989,7 @@ class UpdateChatReplyMarkup(TlObject, Update):
         if data:
             data_class = cls()
             data_class.chat_id = int(data.get("chat_id", 0))
-            data_class.reply_markup_message_id = int(
-                data.get("reply_markup_message_id", 0)
-            )
+            data_class.reply_markup_message = data.get("reply_markup_message", None)
 
         return data_class
 
@@ -96267,6 +97090,8 @@ class UpdateServiceNotification(TlObject, Update):
             MessageChatDeletePhoto,
             MessageChatOwnerLeft,
             MessageChatOwnerChanged,
+            MessageChatHasProtectedContentToggled,
+            MessageChatHasProtectedContentDisableRequested,
             MessageChatAddMembers,
             MessageChatJoinByLink,
             MessageChatJoinByRequest,
@@ -96348,6 +97173,59 @@ class UpdateServiceNotification(TlObject, Update):
             data_class = cls()
             data_class.type = data.get("type", "")
             data_class.content = data.get("content", None)
+
+        return data_class
+
+
+class UpdateNewOauthRequest(TlObject, Update):
+    r"""An OAuth authorization request was received
+
+    Parameters:
+        domain (:class:`str`):
+            A domain of the URL where the user authorizes
+
+        location (:class:`str`):
+            Human\-readable description of a country and a region from which the authorization is performed, based on the IP address
+
+        url (:class:`str`):
+            The URL to pass to getOauthLinkInfo; the link is valid for 60 seconds
+
+    """
+
+    def __init__(self, domain: str = "", location: str = "", url: str = "") -> None:
+        self.domain: Union[str, None] = domain
+        r"""A domain of the URL where the user authorizes"""
+        self.location: Union[str, None] = location
+        r"""Human\-readable description of a country and a region from which the authorization is performed, based on the IP address"""
+        self.url: Union[str, None] = url
+        r"""The URL to pass to getOauthLinkInfo; the link is valid for 60 seconds"""
+
+    def __str__(self):
+        return str(pytdbot.utils.obj_to_json(self, indent=4))
+
+    @classmethod
+    def getType(self) -> Literal["updateNewOauthRequest"]:
+        return "updateNewOauthRequest"
+
+    @classmethod
+    def getClass(self) -> Literal["Update"]:
+        return "Update"
+
+    def to_dict(self) -> dict:
+        return {
+            "@type": self.getType(),
+            "domain": self.domain,
+            "location": self.location,
+            "url": self.url,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Union["UpdateNewOauthRequest", None]:
+        if data:
+            data_class = cls()
+            data_class.domain = data.get("domain", "")
+            data_class.location = data.get("location", "")
+            data_class.url = data.get("url", "")
 
         return data_class
 
